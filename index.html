@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MangaVerse — Ton Lecteur Personnel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --bg3: #14141f;
+    --card: #16161f;
+    --border: #2a2a3a;
+    --accent: #e63946;
+    --accent2: #ff6b6b;
+    --gold: #ffd700;
+    --text: #e8e8f0;
+    --text2: #9090aa;
+    --text3: #6060aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Raleway', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background ambiance */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(230,57,70,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(100,60,200,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span {
+    font-weight: 400;
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+
+  .nav-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #c1121f);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(230,57,70,0.4);
+  }
+
+  /* SEARCH BAR */
+  .search-section {
+    position: relative;
+    z-index: 1;
+    padding: 3rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .search-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+  }
+
+  .search-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .search-subtitle {
+    color: var(--text2);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+
+  .search-bar {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .search-input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.2rem;
+    color: var(--text);
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+  }
+
+  .search-input::placeholder { color: var(--text3); }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-chip:hover, .filter-chip.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(230,57,70,0.08);
+  }
+
+  /* MAIN CONTENT */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .see-all {
+    color: var(--text3);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .see-all:hover { color: var(--accent); }
+
+  /* MANGA GRID */
+  .manga-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .manga-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .manga-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    border-color: var(--accent);
+  }
+
+  .manga-cover {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    display: block;
+    background: var(--bg3);
+  }
+
+  .manga-cover-placeholder {
+    width: 100%;
+    aspect-ratio: 2/3;
+    background: linear-gradient(135deg, var(--bg3), var(--bg2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--text3);
+  }
+
+  .manga-info {
+    padding: 0.75rem;
+  }
+
+  .manga-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .manga-meta {
+    font-size: 0.72rem;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .status-dot.ongoing { background: #4caf50; }
+  .status-dot.completed { background: var(--gold); }
+
+  .manga-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .manga-badge.new { background: #4caf50; }
+  .manga-badge.hot { background: #ff6b35; }
+
+  /* CHAPTER PROGRESS */
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--border);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transition: width 0.3s;
+  }
+
+  /* READER MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .reader-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  .reader-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reader-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+    gap: 4px;
+  }
+
+  .reader-page {
+    max-width: 800px;
+    width: 100%;
+    display: block;
+  }
+
+  .reader-page img {
+    width: 100%;
+    display: block;
+  }
+
+  .reader-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .chapter-select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* MANGA DETAIL MODAL */
+  .detail-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .detail-modal.open { display: flex; }
+
+  .detail-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-header {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-cover {
+    width: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg3);
+  }
+
+  .detail-cover-placeholder {
+    width: 120px;
+    height: 180px;
+    border-radius: 8px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .detail-meta h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.75rem 0;
+  }
+
+  .tag {
+    padding: 0.2rem 0.6rem;
+    background: rgba(230,57,70,0.12);
+    border: 1px solid rgba(230,57,70,0.25);
+    border-radius: 4px;
+    font-size: 0.72rem;
+    color: var(--accent2);
+  }
+
+  .detail-desc {
+    padding: 1.2rem 1.5rem;
+    font-size: 0.88rem;
+    color: var(--text2);
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chapter-list {
+    padding: 1rem 1.5rem;
+  }
+
+  .chapter-list h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: var(--text2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .chapter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .chapter-item:hover { color: var(--accent); }
+
+  .chapter-item:hover .ch-read-btn { opacity: 1; }
+
+  .ch-num {
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  .ch-date {
+    font-size: 0.75rem;
+    color: var(--text3);
+  }
+
+  .ch-read-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  /* LOADING */
+  .loading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.2rem;
+  }
+
+  .skeleton {
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    animation: pulse 1.5s infinite;
+  }
+
+  .skeleton-cover {
+    width: 100%;
+    aspect-ratio: 2/3;
+    background: var(--bg3);
+  }
+
+  .skeleton-info { padding: 0.75rem; }
+  .skeleton-line { height: 10px; background: var(--bg3); border-radius: 4px; margin-bottom: 6px; }
+  .skeleton-line.short { width: 60%; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text2);
+  }
+
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state h3 { font-family: 'Cinzel', serif; margin-bottom: 0.5rem; color: var(--text); }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  @media (max-width: 600px) {
+    .search-title { font-size: 1.8rem; }
+    .manga-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    nav { padding: 0 1rem; }
+    main { padding: 0 1rem 4rem; }
+    .search-section { padding: 2rem 1rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Manga<span>Verse</span></div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="switchTab('library')">📚 Bibliothèque</button>
+    <button class="btn btn-primary" onclick="switchTab('discover')">Découvrir</button>
+  </div>
+</nav>
+
+<div class="search-section">
+  <h1 class="search-title">Ton univers <em>Manhwa</em></h1>
+  <p class="search-subtitle">Recherche des milliers de titres via MangaDex</p>
+  <div class="search-bar">
+    <input type="text" class="search-input" id="searchInput" placeholder="Solo Leveling, Tower of God, Omniscient Reader..." />
+    <button class="btn btn-primary" onclick="doSearch()">Chercher</button>
+  </div>
+  <div class="filters">
+    <button class="filter-chip active" onclick="setFilter('manhwa', this)">Manhwa</button>
+    <button class="filter-chip" onclick="setFilter('manga', this)">Manga</button>
+    <button class="filter-chip" onclick="setFilter('manhua', this)">Manhua</button>
+    <button class="filter-chip" onclick="setFilter('all', this)">Tout</button>
+  </div>
+</div>
+
+<main>
+  <div class="tabs">
+    <div class="tab active" id="tab-discover" onclick="switchTab('discover')">Découvrir</div>
+    <div class="tab" id="tab-library" onclick="switchTab('library')">Ma Bibliothèque</div>
+    <div class="tab" id="tab-latest" onclick="switchTab('latest')">Dernières Sorties</div>
+  </div>
+
+  <!-- DISCOVER TAB -->
+  <div class="tab-content active" id="content-discover">
+    <div class="section-header">
+      <div class="section-title">Manhwa Populaires</div>
+      <a class="see-all" onclick="loadPopular()">Voir plus →</a>
+    </div>
+    <div class="manga-grid" id="popularGrid">
+      <!-- Loading skeletons -->
+      ${Array(8).fill().map(() => `
+        <div class="skeleton">
+          <div class="skeleton-cover"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-header" style="margin-top:1rem">
+      <div class="section-title">Résultats de Recherche</div>
+    </div>
+    <div class="manga-grid" id="searchGrid"></div>
+  </div>
+
+  <!-- LIBRARY TAB -->
+  <div class="tab-content" id="content-library">
+    <div class="section-header">
+      <div class="section-title">Ma Bibliothèque</div>
+      <span class="see-all" id="libraryCount">0 titre(s)</span>
+    </div>
+    <div class="manga-grid" id="libraryGrid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="icon">📚</div>
+        <h3>Bibliothèque vide</h3>
+        <p>Recherche des manhwa et ajoute-les à ta bibliothèque !</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LATEST TAB -->
+  <div class="tab-content" id="content-latest">
+    <div class="section-header">
+      <div class="section-title">Dernières Mises à Jour</div>
+    </div>
+    <div class="manga-grid" id="latestGrid">
+      ${Array(8).fill().map(() => `
+        <div class="skeleton">
+          <div class="skeleton-cover"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="detail-modal" id="detailModal">
+  <div class="detail-card" id="detailCard">
+    <div style="display:flex;justify-content:flex-end;padding:1rem 1rem 0">
+      <button class="btn btn-ghost" onclick="closeDetail()">✕ Fermer</button>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<!-- READER MODAL -->
+<div class="modal-overlay" id="readerModal">
+  <div class="reader-nav">
+    <button class="btn btn-ghost" onclick="closeReader()">✕</button>
+    <div class="reader-title" id="readerTitle">Lecture...</div>
+    <button class="btn btn-ghost" id="readerToggleDir" onclick="toggleDirection()">↕ Vertical</button>
+  </div>
+  <div class="reader-body" id="readerBody">
+    <p style="color:var(--text2);margin-top:4rem">Chargement des pages...</p>
+  </div>
+  <div class="reader-footer">
+    <button class="btn btn-ghost" id="prevChBtn" onclick="changeChapter(-1)">← Précédent</button>
+    <select class="chapter-select" id="chapterSelect" onchange="loadChapterById(this.value)"></select>
+    <button class="btn btn-ghost" id="nextChBtn" onclick="changeChapter(1)">Suivant →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+async function apiFetch(path, params) {
+  const query = params ? params.toString() : '';
+  const url = `/.netlify/functions/api?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`;
+  return fetch(url);
+}
+let currentFilter = 'manhwa';
+let library = JSON.parse(localStorage.getItem('mangaverse_library') || '{}');
+let readProgress = JSON.parse(localStorage.getItem('mangaverse_progress') || '{}');
+let currentManga = null;
+let currentChapters = [];
+let currentChapterIndex = 0;
+let readerVertical = true;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('content-' + name).classList.add('active');
+  if (name === 'library') renderLibrary();
+  if (name === 'latest') loadLatest();
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function getCoverUrl(manga) {
+  const coverRel = manga.relationships?.find(r => r.type === 'cover_art');
+  if (coverRel?.attributes?.fileName) {
+    return `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes.fileName}.256.jpg`;
+  }
+  return null;
+}
+
+function getMangaTitle(manga) {
+  const t = manga.attributes.title;
+  return t.fr || t.en || Object.values(t)[0] || 'Sans titre';
+}
+
+function createCard(manga, badgeText = null, badgeType = '') {
+  const cover = getCoverUrl(manga);
+  const title = getMangaTitle(manga);
+  const status = manga.attributes.status;
+  const inLibrary = library[manga.id];
+  const progress = readProgress[manga.id];
+
+  const card = document.createElement('div');
+  card.className = 'manga-card';
+  card.style.animationDelay = Math.random() * 0.3 + 's';
+
+  const coverHtml = cover
+    ? `<img class="manga-cover" src="${cover}" alt="${title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\"manga-cover-placeholder\\">📖</div>'">`
+    : `<div class="manga-cover-placeholder">📖</div>`;
+
+  const progressHtml = progress
+    ? `<div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress.pct || 10, 100)}%"></div></div>`
+    : '';
+
+  card.innerHTML = `
+    ${badgeText ? `<div class="manga-badge ${badgeType}">${badgeText}</div>` : ''}
+    ${inLibrary ? `<div class="manga-badge" style="top:8px;right:8px;left:auto;background:#6c3ff5">★</div>` : ''}
+    ${coverHtml}
+    <div class="manga-info">
+      <div class="manga-title">${title}</div>
+      <div class="manga-meta">
+        <div class="status-dot ${status === 'ongoing' ? 'ongoing' : status === 'completed' ? 'completed' : ''}"></div>
+        ${status === 'ongoing' ? 'En cours' : status === 'completed' ? 'Terminé' : status || ''}
+      </div>
+    </div>
+    ${progressHtml}
+  `;
+
+  card.onclick = () => openDetail(manga);
+  return card;
+}
+
+async function loadPopular() {
+  const grid = document.getElementById('popularGrid');
+  grid.innerHTML = Array(8).fill().map(() => `<div class="skeleton"><div class="skeleton-cover"></div><div class="skeleton-info"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
+
+  try {
+    const params = new URLSearchParams({
+      limit: 20,
+      'contentRating[]': 'safe',
+      'contentRating[]': 'suggestive',
+      'order[followedCount]': 'desc',
+      'includes[]': 'cover_art',
+      'availableTranslatedLanguage[]': 'fr',
+    });
+
+    if (currentFilter !== 'all') params.append('publicationDemographic[]', currentFilter === 'manhwa' ? 'none' : currentFilter);
+    if (currentFilter === 'manhwa') {
+      params.delete('publicationDemographic[]');
+      params.append('originalLanguage[]', 'ko');
+    } else if (currentFilter === 'manga') {
+      params.delete('publicationDemographic[]');
+      params.append('originalLanguage[]', 'ja');
+    } else if (currentFilter === 'manhua') {
+      params.delete('publicationDemographic[]');
+      params.append('originalLanguage[]', 'zh');
+    }
+
+    const res = await apiFetch('/manga', params);
+    const data = await res.json();
+    grid.innerHTML = '';
+    if (!data.data?.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">😕</div><h3>Aucun résultat</h3></div>';
+      return;
+    }
+    data.data.forEach((manga, i) => {
+      grid.appendChild(createCard(manga, i < 3 ? `#${i+1}` : null, 'hot'));
+    });
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">⚠️</div><h3>Erreur de connexion</h3><p>Vérifie ta connexion internet</p></div>';
+  }
+}
+
+async function doSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+
+  const grid = document.getElementById('searchGrid');
+  grid.innerHTML = Array(6).fill().map(() => `<div class="skeleton"><div class="skeleton-cover"></div><div class="skeleton-info"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
+
+  try {
+    const params = new URLSearchParams({
+      title: query,
+      limit: 12,
+      'contentRating[]': 'safe',
+      'includes[]': 'cover_art',
+    });
+
+    if (currentFilter === 'manhwa') params.append('originalLanguage[]', 'ko');
+    else if (currentFilter === 'manga') params.append('originalLanguage[]', 'ja');
+    else if (currentFilter === 'manhua') params.append('originalLanguage[]', 'zh');
+
+    const res = await apiFetch('/manga', params);
+    const data = await res.json();
+    grid.innerHTML = '';
+    if (!data.data?.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><h3>Aucun résultat</h3><p>Essaie avec un autre titre</p></div>';
+      return;
+    }
+    data.data.forEach(manga => grid.appendChild(createCard(manga)));
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">⚠️</div><h3>Erreur</h3></div>';
+  }
+}
+
+async function loadLatest() {
+  const grid = document.getElementById('latestGrid');
+  try {
+    const params = new URLSearchParams({
+      limit: 20,
+      'contentRating[]': 'safe',
+      'order[updatedAt]': 'desc',
+      'includes[]': 'cover_art',
+      'availableTranslatedLanguage[]': 'fr',
+    });
+    if (currentFilter === 'manhwa') params.append('originalLanguage[]', 'ko');
+
+    const res = await apiFetch('/manga', params);
+    const data = await res.json();
+    grid.innerHTML = '';
+    data.data?.forEach(manga => grid.appendChild(createCard(manga, 'NEW', 'new')));
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">⚠️</div><h3>Erreur de connexion</h3></div>';
+  }
+}
+
+async function openDetail(manga) {
+  currentManga = manga;
+  const modal = document.getElementById('detailModal');
+  const content = document.getElementById('detailContent');
+  modal.classList.add('open');
+
+  const cover = getCoverUrl(manga);
+  const title = getMangaTitle(manga);
+  const desc = manga.attributes.description?.fr || manga.attributes.description?.en || 'Aucune description disponible.';
+  const tags = manga.attributes.tags?.slice(0, 8).map(t => t.attributes.name.en || '').filter(Boolean) || [];
+  const inLibrary = library[manga.id];
+
+  const coverHtml = cover
+    ? `<img class="detail-cover" src="${cover}" alt="${title}">`
+    : `<div class="detail-cover-placeholder">📖</div>`;
+
+  content.innerHTML = `
+    <div class="detail-header">
+      ${coverHtml}
+      <div class="detail-meta">
+        <h2>${title}</h2>
+        <div style="font-size:0.8rem;color:var(--text3);margin-bottom:0.5rem">
+          ${manga.attributes.status === 'ongoing' ? '🟢 En cours' : manga.attributes.status === 'completed' ? '⭐ Terminé' : ''}
+          · ${manga.attributes.year || ''}
+        </div>
+        <div class="detail-tags">
+          ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="loadChapters('${manga.id}')">📖 Lire</button>
+          <button class="btn btn-ghost" id="libBtn" onclick="toggleLibrary('${manga.id}')">
+            ${inLibrary ? '★ Retirer' : '☆ Ajouter'}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-desc">${desc.slice(0, 400)}${desc.length > 400 ? '...' : ''}</div>
+    <div class="chapter-list">
+      <h3>Chapitres</h3>
+      <div id="chapterListContent"><p style="color:var(--text3);font-size:0.85rem">Cliquez sur "Lire" pour charger les chapitres</p></div>
+    </div>
+  `;
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+function toggleLibrary(id) {
+  if (library[id]) {
+    delete library[id];
+    showToast('Retiré de ta bibliothèque');
+  } else {
+    library[id] = currentManga;
+    showToast('Ajouté à ta bibliothèque ! ★');
+  }
+  localStorage.setItem('mangaverse_library', JSON.stringify(library));
+  document.getElementById('libBtn').textContent = library[id] ? '★ Retirer' : '☆ Ajouter';
+}
+
+async function loadChapters(mangaId) {
+  const listEl = document.getElementById('chapterListContent');
+  listEl.innerHTML = '<p style="color:var(--text3);font-size:0.85rem">Chargement...</p>';
+
+  try {
+    const params = new URLSearchParams({
+      manga: mangaId,
+      limit: 100,
+      'translatedLanguage[]': 'fr',
+      'order[chapter]': 'desc',
+    });
+
+    let res = await apiFetch('/chapter', params);
+    let data = await res.json();
+
+    // If no French chapters, try English
+    if (!data.data?.length) {
+      params.set('translatedLanguage[]', 'en');
+      res = await apiFetch('/chapter', params);
+      data = await res.json();
+    }
+
+    if (!data.data?.length) {
+      listEl.innerHTML = '<p style="color:var(--text3);font-size:0.85rem">Aucun chapitre disponible en FR ou EN</p>';
+      return;
+    }
+
+    currentChapters = data.data;
+
+    listEl.innerHTML = data.data.map((ch, i) => {
+      const num = ch.attributes.chapter || '?';
+      const title = ch.attributes.title || '';
+      const date = ch.attributes.publishAt ? new Date(ch.attributes.publishAt).toLocaleDateString('fr-FR') : '';
+      const lang = ch.attributes.translatedLanguage?.toUpperCase() || '';
+      return `
+        <div class="chapter-item" onclick="startReading(${i})">
+          <div>
+            <div class="ch-num">Chapitre ${num} ${title ? '— ' + title : ''} <span style="font-size:0.7rem;color:var(--text3)">${lang}</span></div>
+            <div class="ch-date">${date}</div>
+          </div>
+          <button class="ch-read-btn">Lire →</button>
+        </div>
+      `;
+    }).join('');
+
+  } catch(e) {
+    listEl.innerHTML = '<p style="color:var(--text3)">Erreur lors du chargement</p>';
+  }
+}
+
+async function startReading(chapterIndex) {
+  currentChapterIndex = chapterIndex;
+  closeDetail();
+  openReader();
+}
+
+function openReader() {
+  const modal = document.getElementById('readerModal');
+  modal.classList.add('open');
+  loadChapterByIndex(currentChapterIndex);
+  populateChapterSelect();
+}
+
+function closeReader() {
+  document.getElementById('readerModal').classList.remove('open');
+  document.getElementById('readerBody').innerHTML = '<p style="color:var(--text2);margin-top:4rem">Chargement des pages...</p>';
+}
+
+function populateChapterSelect() {
+  const sel = document.getElementById('chapterSelect');
+  sel.innerHTML = currentChapters.map((ch, i) => {
+    const num = ch.attributes.chapter || '?';
+    return `<option value="${i}" ${i === currentChapterIndex ? 'selected' : ''}>Chapitre ${num}</option>`;
+  }).join('');
+}
+
+async function loadChapterByIndex(index) {
+  const ch = currentChapters[index];
+  if (!ch) return;
+
+  const title = getMangaTitle(currentManga);
+  const num = ch.attributes.chapter || '?';
+  document.getElementById('readerTitle').textContent = `${title} — Chapitre ${num}`;
+  document.getElementById('chapterSelect').value = index;
+
+  const body = document.getElementById('readerBody');
+  body.innerHTML = '<p style="color:var(--text2);margin-top:4rem;text-align:center">⏳ Chargement des pages...</p>';
+
+  try {
+    const res = await apiFetch(`/at-home/server/${ch.id}`);
+    const data = await res.json();
+
+    const baseUrl = data.baseUrl;
+    const hash = data.chapter.hash;
+    const pages = data.chapter.data; // high quality
+
+    body.innerHTML = '';
+    pages.forEach((page, i) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'reader-page';
+      const img = document.createElement('img');
+      img.src = `${baseUrl}/data/${hash}/${page}`;
+      img.alt = `Page ${i + 1}`;
+      img.loading = i < 3 ? 'eager' : 'lazy';
+      wrapper.appendChild(img);
+      body.appendChild(wrapper);
+    });
+
+    // Save progress
+    if (currentManga) {
+      const total = currentChapters.length;
+      const pct = Math.round(((total - index) / total) * 100);
+      readProgress[currentManga.id] = { chapterIndex: index, chapterId: ch.id, pct };
+      localStorage.setItem('mangaverse_progress', JSON.stringify(readProgress));
+    }
+
+    body.scrollTop = 0;
+  } catch(e) {
+    body.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Impossible de charger les pages</h3><p>Ce chapitre n\'est peut-être pas disponible</p></div>';
+  }
+}
+
+function loadChapterById(index) {
+  currentChapterIndex = parseInt(index);
+  loadChapterByIndex(currentChapterIndex);
+}
+
+function changeChapter(dir) {
+  const newIndex = currentChapterIndex + dir;
+  if (newIndex >= 0 && newIndex < currentChapters.length) {
+    currentChapterIndex = newIndex;
+    loadChapterByIndex(currentChapterIndex);
+  } else {
+    showToast(dir > 0 ? 'Dernier chapitre !' : 'Premier chapitre !');
+  }
+}
+
+function toggleDirection() {
+  // already vertical by default, this is cosmetic
+  showToast('Mode lecture vertical activé');
+}
+
+function renderLibrary() {
+  const grid = document.getElementById('libraryGrid');
+  const ids = Object.keys(library);
+  document.getElementById('libraryCount').textContent = `${ids.length} titre(s)`;
+
+  if (!ids.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">📚</div><h3>Bibliothèque vide</h3><p>Recherche des manhwa et ajoute-les !</p></div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  ids.forEach(id => {
+    const manga = library[id];
+    if (manga) grid.appendChild(createCard(manga));
+  });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const readerOpen = document.getElementById('readerModal').classList.contains('open');
+  if (readerOpen) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeChapter(1);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeChapter(-1);
+    if (e.key === 'Escape') closeReader();
+  }
+  if (document.getElementById('detailModal').classList.contains('open') && e.key === 'Escape') {
+    closeDetail();
+  }
+});
+
+// Search on Enter
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+// Close modal on overlay click
+document.getElementById('detailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDetail();
+});
+
+// Init
+loadPopular();
+</script>
+</body>
+</html>
