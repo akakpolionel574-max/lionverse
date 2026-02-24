@@ -938,6 +938,7 @@ async function doSearch() {
       limit: 12,
       'contentRating[]': 'safe',
       'includes[]': 'cover_art',
+      'availableTranslatedLanguage[]': 'fr',
     });
 
     if (currentFilter === 'manhwa') params.append('originalLanguage[]', 'ko');
@@ -1053,15 +1054,8 @@ async function loadChapters(mangaId) {
     let res = await apiFetch('/chapter', params);
     let data = await res.json();
 
-    // If no French chapters, try English
     if (!data.data?.length) {
-      params.set('translatedLanguage[]', 'en');
-      res = await apiFetch('/chapter', params);
-      data = await res.json();
-    }
-
-    if (!data.data?.length) {
-      listEl.innerHTML = '<p style="color:var(--text3);font-size:0.85rem">Aucun chapitre disponible en FR ou EN</p>';
+      listEl.innerHTML = '<p style="color:var(--text3);font-size:0.85rem">😕 Aucun chapitre disponible en français pour ce titre.</p>';
       return;
     }
 
